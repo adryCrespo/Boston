@@ -1,7 +1,7 @@
 ##################################
 #Version 01
 # Fecha_ 19/05/2019
-#Objetivos: importacion de datos y exploracion inicial
+#Objetivos: importacion de datos , exploracion inicial,seleccion de variables
 #Resultados
 ####################################
 
