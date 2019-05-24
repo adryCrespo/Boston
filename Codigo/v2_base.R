@@ -56,7 +56,13 @@ modelo1 <- glm(f1,data=data_train2,family=binomial)
 
 matrix_lineal <- sensEspCorte(modelo1,data_test2,"deny",0.5,'1')
 
+pred1_bc <- predict(modelo1, data_test2, type = "response")
+cc <- caret::confusionMatrix(factor(ifelse(pred1_bc>0.5,'1','0')),data_test2$deny )
+levels(data_test2$deny)
+cc$byClass[,1]
+levels(pred1_bc)
 
+shape(data_test2$deny) 
 #modelo no lineal 1
 m15 <- c("dmi","dir","lvr","pbcr")
 f2 <- paste0("factor(deny)~",paste0(m15,collapse='+'))
@@ -69,7 +75,7 @@ probs <- (predict(rf1,data_test2)$predictions)[,2]
 cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
                        reference=data_test2[,'deny'],positive='1')
 modelo_rf1 <- c(cm$overall[1],cm$byClass[1:4])
-
+caret::confusionMatrix(
 
 
 #modelo no lineal 2
@@ -84,7 +90,7 @@ probs <- (predict(rf2,data_test2)$predictions)[,2]
 cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
                            reference=data_test2[,'deny'],positive='1')
 modelo_rf2 <-c(cm$overall[1],cm$byClass[1:4])
-
+cm$byClass
 
 #modelo no lineal 3
 m22 <- c("dmi","dir","lvr","pbcr","hir","black","single")
@@ -105,3 +111,78 @@ cm$table
 
 resumen <- data.frame(matrix_lineal,modelo_rf1,modelo_rf2,modelo_rf3)
 save(resumen,file="Datos\\resumen.Rdata" )
+
+
+### Desbalance en categorias target ----
+
+library(ROSE)
+
+
+data.rose <- ROSE(deny~.,data=data1, seed = 1234)$data
+ table(data.rose$deny)
+
+ # data.rose$deny <- ifelse(data.rose$deny == 'Yes','1','0')
+ # data.rose$deny <- factor(data.rose$deny, levels = c('1','0') )
+ # levels(data.rose$deny)  
+ levels(data1$deny)
+ #Particion Training/Test
+ set.seed(123456)
+ #data1$V1 <- NULL
+ trainIndex2 <- createDataPartition(data.rose$deny, p=0.8, list=FALSE)
+ data_train3 <- data.rose[trainIndex2,]#quito las variables transformadas por el momento
+ data_test3 <- data.rose[-trainIndex2,]
+ 
+ data_train3$deny <- ifelse(data_train3$deny=='Yes','1','0')
+ data_train3$deny <- factor(data_train3$deny)
+ 
+ data_test3$deny <- ifelse(data_test3$deny=='Yes','1','0')
+ data_test3$deny <- factor(data_test3$deny)
+ 
+ 
+ table(data_train3$deny)
+ levels(data_train3$deny)
+ 
+ #modelo no lineal 1
+ f2
+ rf1b <- ranger(f2,data=data_train3,
+               mtry=3,num.trees = 500,min.node.size=10, replace = TRUE,probability = TRUE)
+ 
+ probs <- (predict(rf1b,data_test3)$predictions)[,2]
+ cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
+                            reference=data_test3[,'deny'],positive='1')
+ cm$byClass[,1]
+ modelo_rf1b <- c(cm$overall[1],cm$byClass[1:4])
+ 
+ #### Todas las variables
+ rff <- ranger(deny~.,data=data_train3,
+               mtry=3,num.trees = 500,min.node.size=10, replace = TRUE,probability = TRUE)
+ 
+ probs <- (predict(rff,data_test3)$predictions)[,2]
+ cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
+                            reference=data_test3[,'deny'],positive='1')
+ modelo_rf1qqq <- c(cm$overall[1],cm$byClass[1:4])
+ 
+ 
+ probs <- (predict(rff,data_test2)$predictions)[,2]
+ cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
+                            reference=data_test2[,'deny'],positive='1')
+ modelo_rf1qqq <- c(cm$overall[1],cm$byClass[1:4])
+ 
+ #modelo no lineal 2
+ f2
+ rf2b <- ranger(f3,data=data_train3,
+                mtry=3,num.trees = 500,min.node.size=10, replace = TRUE,probability = TRUE)
+ 
+ probs <- (predict(rf2b,data_test3)$predictions)[,2]
+ cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
+                            reference=data_test3[,'deny'],positive='1')
+ modelo_rf2b <- c(cm$overall[1],cm$byClass[1:4])
+ 
+ 
+ 
+ 
+ probs <- (predict(rf2b,data_test2)$predictions)[,2]
+ cm<-caret::confusionMatrix(data=factor(ifelse(probs>0.5,'1','0')),
+                            reference=data_test2[,'deny'],positive='1')
+ modelo_rf2b <- c(cm$overall[1],cm$byClass[1:4])
+ 
