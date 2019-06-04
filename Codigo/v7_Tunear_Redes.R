@@ -7,7 +7,8 @@
 ####################################
 
 #Librerias
-
+library(caret)
+library(ROSE)
 #Datos
 load(file="Datos\\datos_originales_limpios.Rdata")
 
@@ -22,7 +23,7 @@ listclass <- dput(names(Filter(is.factor,df[,vars])))
 total <- c()
 nnetgrid <- expand.grid(size=c(5,10,15,20),decay=c(0.1,0.01,0.001))
 for(i in seq(1,dim(nnetgrid)[1]) ){
-  aux <- RedesDesbalance(df,listconti,listclass,grupos = 2, repeticiones = 2,vardep = vardep,
+  aux <- RedesDesbalance(df,listconti,listclass,grupos = 4, repeticiones = 5,vardep = vardep,
                                 size_net = nnetgrid[i,1],decay_net=nnetgrid[i,2],numIter = 150)
 aux$repeticion <- NULL
 aux1 <- data.frame(lapply(aux,  mean))

@@ -16,7 +16,7 @@
 
 
 RangerDesbalance <- function(df,ecuacion,grupos=grupos,repeticiones=repeticiones,vardep=vardep,
-                              mtry=3,num.trees = 500,min.node.size=10){
+                              mtry=3,num.trees = 500,min.node.size=10,semilla=111){
     
    library(ranger)
    library(ROSE)
@@ -33,7 +33,7 @@ RangerDesbalance <- function(df,ecuacion,grupos=grupos,repeticiones=repeticiones
     #medias <- c() #listas con repeticiones
     
     for(j in 1:repeticiones){
-      set.seed(111 + j)
+      set.seed(semilla + j)
       #shuffle samples
       
       df <- df[sample(nrow(df)),]
