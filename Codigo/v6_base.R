@@ -1,6 +1,6 @@
 ##################################
 #Version 06
-# Fecha_ 127/05/2019
+# Fecha_ 12/05/2019
 #Objetivos: seleccion de variables con datos balanceados
 
 #Resultados
@@ -14,6 +14,48 @@ library(ranger)
 library(ROSE)
 
 source('Funciones\\funcion steprepetido binaria2.R')#logistica binaria AIC y BIC
+source(file="Funciones\\funcionesDesbalance.R")
+#Importar datos ----
+data1    <- as.data.frame(fread('Datos\\Hdma.csv')) #datos training
+
+##Variables ----
+dput(names(data1))
+listconti <- c("dir", "hir", "lvr", "ccs", "mcs", "uria")
+listclass <- c("pbcr", "dmi", "self", "single", "comdominiom", "black")
+vardep <- c("deny")
+### Contabilizar los missings
+
+apply(is.na(data1),2,sum)
+# V1         dir         hir 
+# 0           0           0 
+# lvr         ccs         mcs 
+# 0           0           0 
+# pbcr         dmi        self 
+# 1           0           1 
+# single        uria comdominiom 
+# 0           0           0 
+# black        deny 
+# 0           0 
+
+data1 <- na.omit(data1)
+
+#Exploracion de datos ----
+create_report(data1, y = "deny")# crea informe en fotos
+table(data1$deny)
+# no  yes 
+# 2096  285 
+#Desbalance 7.33
+
+data1[,c(listclass[-5]) ] <- apply(data1[,c(listclass[-5]) ],2,function(x) ifelse(x == "yes","1","0"))
+data1[,c(listclass,vardep) ] <- lapply(data1[,c(listclass,vardep) ],function(x) factor(x))
+data1$deny <- ifelse(data1$deny == 'yes','Yes','no')
+#variables cate: 1 y 0, excepto objetivo que es deny yes or no 
+# todas factoriales
+
+save(data1,file="Datos\\datos.Rdata")
+
+
+
 # library()
 
 #Importacion de datos

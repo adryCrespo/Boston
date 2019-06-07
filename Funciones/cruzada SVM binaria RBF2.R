@@ -93,7 +93,7 @@ cruzadaSVMbinRBF2<-function(data=data,vardep="vardep",
   
   mediasbis<-preditest %>%
    group_by(Rep) %>%
-   summarize(auc=auc(obs,X1))
+   summarize(auc=auc(obs,Yes))
   
   # Unimos la info de auc y de tasafallos
   
@@ -111,7 +111,7 @@ cruzadaSVMbinRBF2<-function(data=data,vardep="vardep",
   
   medias$sensibilidad <- s1$sensitivity
   
-  return(medias)
+  return(list(medias,preditest))
   
  }
 

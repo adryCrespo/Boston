@@ -15,7 +15,7 @@ library(ROSE)
 library(dummies)
 #Datos
 load(file="Datos\\datos_originales_limpios.Rdata")
-
+source(file="Funciones\\cruzada gbm binaria2.R")
 #Variables
 vardep <- c("deny")
 vars <- c("dir", "dmi", "hir","ccs","pbcr","lvr","black")
